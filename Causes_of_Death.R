@@ -45,20 +45,31 @@ States <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE)) %>%
   as_tibble() %>%
   rename(State = ID)
 
+# Join States and Causes_of_Death
+Causes_of_Death %<>% left_join(States) %>%
+  filter(!st_is_empty(geom))
 
 # Simple plot of State boundaries
-ggplot(USA) +
-  geom_sf(fill = "antiquewhite1",
-          lwd=0,
-          color="black") +
-  geom_sf(data=States,
-          aes(geometry=geom),
+ggplot(data=Causes_of_Death) +
+  geom_sf(aes(geometry=geom,
+              fill=Cause),
           lwd=0.5,
           color="#002240") +
+  scale_fill_discrete(breaks = c("Heart Disease", "Cancer",
+                                 "Accident", "Chronic Lower Respiratory Disease",
+                                 "Cerebrovascular Disease",
+                                 "Alzheimers",
+                                  "Diabetes",
+                                  "Suicide")) +
+  facet_wrap(~ Rank, nrow=5) +
+#  guides(fill = guide_legend(reverse=TRUE)) +
+  ggtitle("Leading Causes of Death by State") +
   theme(axis.ticks = element_blank(),
         axis.text = element_blank(),
         panel.grid = element_blank(),
         panel.background = element_rect(fill="white"),
         plot.background = element_rect(fill="white"))
+
+
 
 ggsave("Cause of Death by State.png", device="png")

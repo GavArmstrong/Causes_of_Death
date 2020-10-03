@@ -1,25 +1,39 @@
 library(tidyverse)
 library(magrittr)
+
+library(readxl)
+
+library(viridis)
+
+library(extrafont)
+#font_import()
+
 library(maps)
 library(sf)
-library(readxl)
-library(viridis)
-library(extrafont)
-
-font_import()
-
 library(ggplot2)
 
 rm(list = ls())
 
 # Set work directory
-#setwd("Google Drive/Projects/Causes_of_Death/")
+#setwd("Google Drive/Projects/Causes of Death/")
 
 # Read data
+Causes_of_Death <- list.files(pattern="Top 5") %>%
+  read_xlsx() %>%
+  as_tibble()
 
+# Lengthen the tibble
+Causes_of_Death %<>% pivot_longer(cols = contains("Cause"),
+                                  names_to = "Rank",
+                                  values_to = "Cause")
 
-# Void theme for maps
-theme_set(theme_void())
+# Format columns
+Causes_of_Death %<>% mutate(Rank = str_replace_all(Rank,
+                                                   "Cause ",
+                                                   ""),
+                            Rank = as.numeric(Rank),
+                            Cause = as.factor(Cause),
+                            State = str_to_title(State))
 
 # Read USA multipolygons from the Maps package
 USA <- st_as_sf(maps::map("usa", plot=FALSE, fill=TRUE)) %>%
@@ -31,12 +45,6 @@ States <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE)) %>%
   as_tibble() %>%
   rename(State = ID)
 
-# Read County multipolygons from the Maps package
-Counties <- st_as_sf(maps::map("county", plot = FALSE, fill = TRUE)) %>%
-  separate(col="ID", into=c("State", "County"), sep=",", extra="merge", fill="left") %>%
-  mutate_at(vars(State, County), str_to_title) %>%
-  as_tibble()
-
 
 # Simple plot of State boundaries
 ggplot(USA) +
@@ -45,11 +53,12 @@ ggplot(USA) +
           color="black") +
   geom_sf(data=States,
           aes(geometry=geom),
-          lwd=0.2,
+          lwd=0.5,
           color="#002240") +
-  geom_sf(data=Counties,
-          aes(geometry=geom),
-          lwd=0.1,
-          color="#4C974C")
+  theme(axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        panel.grid = element_blank(),
+        panel.background = element_rect(fill="white"),
+        plot.background = element_rect(fill="white"))
 
-ggsave("Cause of Death by County.png", device="png")
+ggsave("Cause of Death by State.png", device="png")

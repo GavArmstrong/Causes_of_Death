@@ -70,7 +70,8 @@ ggplot(data=Causes_of_Death) +
                "Alzheimers",
                "Diabetes")) +
   facet_wrap(~ Rank, nrow=3) +
-  ggtitle("Leading Causes of Death by State") +
+  ggtitle("Leading Causes of Death by State",
+          subtitle = bquote(bold("Source:") ~"https://www.cdc.gov/nchs/nvss/mortality/lcwk5_hr.htm")) +
   theme(strip.text = element_text(size=10,
                                   hjust=0.45),
         strip.background = element_rect(size=1,
@@ -89,7 +90,9 @@ ggplot(data=Causes_of_Death) +
         panel.background = element_rect(fill="white"),
         plot.background = element_rect(fill="white"),
         plot.title = element_text(family="Arial Rounded MT Bold",
-                                  size=9))
+                                  size=9),
+        plot.subtitle = element_text(family="Arial",
+                                     size=7))
 
 
 ggsave("Cause of Death by State.png", device="png", width=6.4, height=4)

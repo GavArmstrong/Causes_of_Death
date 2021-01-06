@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1609914937490.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1550563903",
+    "id" : "35197B25",
+    "lastKnownWriteTime" : 1609915435,
+    "last_content_update" : 1609915435371,
+    "path" : "G:/Google Drive/Projects/Causes of Death/Causes_of_Death_V2.R",
+    "project_path" : "Causes_of_Death_V2.R",
+    "properties" : {
+        "cursorPosition" : "24,0",
+        "scrollLine" : "11"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

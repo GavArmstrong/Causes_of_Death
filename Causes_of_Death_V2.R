@@ -3,8 +3,8 @@ library(magrittr)
 library(readxl)
 library(viridis)
 
-library(extrafont)
-#font_import()
+# library(extrafont)
+# font_import()
 
 library(transformr)
 library(tweenr)
@@ -23,28 +23,39 @@ Causes_of_Death <- list.files(path="Data/V2/", pattern="Leading_Causes", full.na
   read_csv() %>%
   as_tibble()
 
-# Lengthen the tibble
-Causes_of_Death %<>% pivot_longer(cols = contains("Cause"),
-                                  names_to = "Rank",
-                                  values_to = "Cause")
+# Select columns.
+Causes_of_Death %<>% select(Year,
+                            State,
+                            Cause = `Cause Name`,
+                            Deaths)
 
-# Format columns
-Causes_of_Death %<>% mutate(Rank = str_replace_all(Rank,
-                                                   "Cause ",
-                                                   ""),
-                            Rank = as.numeric(Rank),
-                            Cause = as.factor(Cause),
-                            State = str_to_title(State))
+
+# Take the most recent year.
+Causes_of_Death %<>% filter(Year == 2017) %>%
+  select(-Year) %>%
+  filter(State != 'United States') %>%
+  filter(Cause != "All causes")
+
+# Order data
+Causes_of_Death %<>% arrange(State, desc(Deaths))
+
+# Take the most common cause for each state
+Causes_of_Death %<>% group_by(State) %>%
+  filter(Deaths == first(Deaths)) %>%
+  ungroup() %>%
+  distinct()
 
 # Read USA multipolygons from the Maps package
 USA <- st_as_sf(maps::map("usa", plot=FALSE, fill=TRUE)) %>%
   mutate(ID = str_to_title(ID))
 
+
 # Read State multipolygons from the Maps package
 States <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE)) %>%
   mutate(ID = str_to_title(ID)) %>%
   as_tibble() %>%
-  rename(State = ID)
+  rename(State = ID) %>%
+  mutate(State = str_replace(State, " Of ", " of "))
 
 # Join States and Causes_of_Death
 Causes_of_Death %<>% left_join(States) %>%
